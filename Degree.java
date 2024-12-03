@@ -11,12 +11,16 @@ public class Degree {
 
     public void addClass(Class newClass) {
         requiredClasses.add(newClass);
+        advisors = new ArrayList<>();
     }
 
     public void listRequiredClasses() {
         for (Class c : requiredClasses) {
             System.out.println("Class Name: " + c.getClassName() + ", Required Grade: " + c.requiredGrade());
         }
+    }
+     public void addAdvisor(Advisor advisor) {
+        advisors.add(advisor);
     }
     public void listAdvisors(){
         //Littel edge case
