@@ -1,11 +1,19 @@
 import java.util.ArrayList;
 
 public class Advisor {
-    public ArrayList<String> advisorNames;
+    private String name;
+    private String email;
 
     // Constructor
-    public Advisor() {
-        advisorNames = new ArrayList<>();
+    public Advisor(String name, String email) {
+        this.name = name;
+        this.emaiil = email;
+    }
+    public String getName(){
+        return name;
+    }
+    public String getEmail(){
+        return email;
     }
 
     // Add an advisor
