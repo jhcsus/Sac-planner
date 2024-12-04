@@ -67,16 +67,43 @@ public class Main {
                     break;
 
                 case 2:
-                    System.out.println("\nAdvisors Available:");
-                    // Assume we have advisors available to display
-                    System.out.println("Advisors not yet implemented fully.");
+                    Advisor advisor = new Advisor();
+                    advisor.addAdvisor("Dr. Smith", "smith@university.edu");
+                    advisor.addAdvisor("Dr. Johnson", "johnson@university.edu");
+                    advisor.addAdvisor("Dr. Lee", "lee@university.edu");
+
+                    System.out.println("\n--- Advisor Menu ---");
+                    System.out.println("1. Get suggested classes");
+                    System.out.println("2. View advisor contact information");
+                    System.out.print("Choose an option: ");
+                    int advisorChoice = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline
+
+                    if (advisorChoice == 1) {
+                        System.out.println("\nClass Suggestions:");
+                        advisor.suggestClasses(degree);
+                    } else if (advisorChoice == 2) {
+                        System.out.println("\nAdvisor Contact Information:");
+                        advisor.displayAdvisors();
+                    } else {
+                        System.out.println("Invalid option.");
+                    }
                     break;
 
                 case 3:
                     System.out.println("\n--- Semester Input Menu ---");
+
+                    // Updated semester number input
                     System.out.print("Enter the semester number: ");
-                    int semesterNumber = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
+                    String semesterNumberInput = scanner.nextLine(); // Read input as a string
+                    int semesterNumber;
+                    try {
+                        semesterNumber = Integer.parseInt(semesterNumberInput); // Try parsing as an integer
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid input. Defaulting to semester number 1.");
+                        semesterNumber = 1; // Default value
+                    }
+
                     System.out.print("Enter the semester name: ");
                     String semesterName = scanner.nextLine();
 
@@ -87,21 +114,19 @@ public class Main {
                         System.out.println("\n--- Add Classes ---");
                         System.out.println("1. Add a class");
                         System.out.println("2. Finish semester");
-                        System.out.println("If all required classes are done press 3 to earn degree");
+                        System.out.println("3. View previously entered semesters and their classes");
                         System.out.print("Choose an option: ");
                         int subChoice = scanner.nextInt();
                         scanner.nextLine(); // Consume newline
 
                         switch (subChoice) {
                             case 1:
-                                System.out.println("Required classes left for degree");
-                                degree.listRequiredClasses();
                                 System.out.print("Enter the class name: ");
                                 String className = scanner.nextLine();
                                 System.out.print("Enter your grade for " + className + " (0-100): ");
                                 int grade = scanner.nextInt();
                                 scanner.nextLine(); // Consume newline
-                                semester.addGrade(grade);
+                                semester.addGrade(className, grade);
 
                                 // Check if it's a required class and pass it
                                 for (int i = 0; i < degree.requiredClasses.size(); i++) {
@@ -110,103 +135,74 @@ public class Main {
                                         if (grade >= 60) { // Assuming 60 is the passing grade
                                             System.out.println("You passed " + requiredClass.getClassName() + "!");
                                             degree.requiredClasses.remove(i);
+                                        } else {
+                                            System.out.println("You failed " + requiredClass.getClassName() + "! Retake the class.");
                                         }
-                                        else {
-                                            System.out.println("You failed " + requiredClass.getClassName() + "!" + "retake the class in order to get degree");
-                                        }
-
                                         break;
                                     }
                                 }
-
                                 break;
 
                             case 2:
-                                System.out.println("\nAdvisors Available:");
-                                Advisor advisor = new Advisor();
-                                advisor.addAdvisor("Dr. Smith");
-                                advisor.addAdvisor("Dr. Johnson");
-                                advisor.addAdvisor("Dr. Lee");
-
-                                for (int i = 0; i < advisor.advisorNames.size(); i++) {
-                                    System.out.println((i + 1) + ". " + advisor.advisorNames.get(i));
-                                }
-
-                                System.out.print("\nWould you like a class suggestion? (yes/no): ");
-                                String advisorChoice = scanner.nextLine();
-                                if (advisorChoice.equalsIgnoreCase("yes")) {
-                                    System.out.println("\nClass Suggestions:");
-                                    advisor.suggestClasses(degree);
-                                }
+                                semesters.add(semester);
+                                addingClasses = false;
                                 break;
 
                             case 3:
-                                if(degree.requiredClasses.size() > 0) {
-                                    System.out.println("you still have the required classes left");
-                                    degree.listRequiredClasses();
-                                    running = true;
-                                }
-                                else {
-                                    System.out.println("\nCongratulations " + user.getUserName() + "! You have completed your degree.");
-                                    System.out.println("Final GPA: " + semesters.stream()
-                                            .mapToDouble(Semester::GPA)
-                                            .average()
-                                            .orElse(0.0));
-                                    addingClasses = false;
-                                    running = false;
+                                System.out.println("\nPreviously Entered Semesters:");
+                                for (Semester sem : semesters) {
+                                    System.out.println("Semester: " + sem.semesterName);
+                                    System.out.println("Classes: " + sem.grades);
                                 }
                                 break;
-                            case 4:
-                                // Display GPA for all semesters
-                                System.out.println("\n--- GPA Display ---");
-                                System.out.println("Choose GPA type:");
-                                System.out.println("1. Unweighted GPA");
-                                System.out.println("2. Weighted GPA");
-                                System.out.print("Enter your choice (1/2): ");
-                                int gpaChoice = scanner.nextInt();
-                                scanner.nextLine(); // Consume newline
 
-                                if (gpaChoice == 1) {
-                                    double totalUnweightedGpa = 0.0;
-                                    int totalSemesters = semesters.size();
-                                    for (Semester sem : semesters) {
-                                        double semesterUnweightedGpa = Gpa_calculator.calculateUnweightedGPA(sem.grades);
-                                        System.out.println("Unweighted GPA for " + sem.semesterName + ": " + semesterUnweightedGpa);
-                                        totalUnweightedGpa += semesterUnweightedGpa;
-                                    }
-                                    double finalUnweightedGpa = totalSemesters > 0 ? totalUnweightedGpa / totalSemesters : 0.0;
-                                    System.out.println("Your overall unweighted GPA: " + finalUnweightedGpa);
-                                } else if (gpaChoice == 2) {
-                                    ArrayList<Double> weights = new ArrayList<>();
-                                    System.out.println("Enter the weight for each class:");
-                                    for (Semester sem : semesters) {
-                                        System.out.println("Semester: " + sem.semesterName);
-                                        for (int i = 0; i < sem.grades.size(); i++) {
-                                            System.out.print("Weight for class " + (i + 1) + ": ");
-                                            double weight = scanner.nextDouble();
-                                            weights.add(weight);
-                                        }
-                                    }
-
-                                    double totalWeightedGpa = 0.0;
-                                    int totalSemesters = semesters.size();
-                                    for (Semester sem : semesters) {
-                                        double semesterWeightedGpa = Gpa_calculator.calculateWeightedGPA(sem.grades, weights);
-                                        System.out.println("Weighted GPA for " + sem.semesterName + ": " + semesterWeightedGpa);
-                                        totalWeightedGpa += semesterWeightedGpa;
-                                    }
-                                    double finalWeightedGpa = totalSemesters > 0 ? totalWeightedGpa / totalSemesters : 0.0;
-                                    System.out.println("Your overall weighted GPA: " + finalWeightedGpa);
-                                } else {
-                                    System.out.println("Invalid choice. Returning to menu.");
-                                }
+                            default:
+                                System.out.println("Invalid choice.");
                                 break;
                         }
-
-
                     }
+                    break;
 
 
+                case 4:
+                    System.out.println("\n--- GPA Display ---");
+                    System.out.println("1. Unweighted GPA");
+                    System.out.println("2. Weighted GPA");
+                    System.out.print("Choose an option: ");
+                    int gpaChoice = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline
+
+                    if (gpaChoice == 1) {
+                        System.out.println("Your overall unweighted GPA: " +
+                                semesters.stream()
+                                        .mapToDouble(Semester::GPA)
+                                        .average()
+                                        .orElse(0.0));
+                    } else if (gpaChoice == 2) {
+                        System.out.println("Enter weights for each semester:");
+                        ArrayList<Double> weights = new ArrayList<>();
+                        for (Semester sem : semesters) {
+                            System.out.println("Semester: " + sem.semesterName);
+                            System.out.print("Weight: ");
+                            weights.add(scanner.nextDouble());
+                        }
+                        double totalWeightedGPA = 0.0;
+                        for (int i = 0; i < semesters.size(); i++) {
+                            totalWeightedGPA += semesters.get(i).GPA() * weights.get(i);
+                        }
+                        double weightedGPA = totalWeightedGPA / weights.stream().mapToDouble(w -> w).sum();
+                        System.out.println("Your overall weighted GPA: " + weightedGPA);
+                    } else {
+                        System.out.println("Invalid choice.");
+                    }
+                    break;
+
+                case 5:
+                    running = false;
+                    break;
+
+                default:
+                    System.out.println("Invalid option. Try again.");
                     break;
             }
         }
