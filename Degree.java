@@ -17,4 +17,7 @@ public class Degree {
             System.out.println("Class Name: " + c.getClassName());
         }
     }
+    public ArrayList<Class> getRequiredClasses() {
+        return requiredClasses;
+    }
 }
